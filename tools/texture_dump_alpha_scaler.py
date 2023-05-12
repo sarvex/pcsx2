@@ -47,9 +47,9 @@ def scale_image(path, relpath):
     except:
         return False
 
-    print("Processing '%s'" % relpath)
+    print(f"Processing '{relpath}'")
     if img.mode != "RGBA":
-        print("  Skipping because it's not RGBA (%s)" % img.mode)
+        print(f"  Skipping because it's not RGBA ({img.mode})")
         return False
 
     data = img.getdata()
@@ -72,9 +72,9 @@ def unscale_image(path, relpath):
     except:
         return False
 
-    print("Processing '%s'" % relpath)
+    print(f"Processing '{relpath}'")
     if img.mode != "RGBA":
-        print("  Skipping because it's not RGBA (%s)" % img.mode)
+        print(f"  Skipping because it's not RGBA ({img.mode})")
         return False
 
     data = img.getdata()
@@ -89,7 +89,7 @@ def get_scaled_images(idir):
     try:
         scaled_images = set()
         with open(get_index_path(idir), "r") as ifile:
-            for line in ifile.readlines():
+            for line in ifile:
                 line = line.strip()
                 if len(line) == 0:
                     continue
@@ -110,7 +110,7 @@ def put_scaled_images(idir, scaled_images):
 def scale_images(idir, force):
     scaled_images = get_scaled_images(idir)
 
-    for path in glob.glob(idir + "/**", recursive=True):
+    for path in glob.glob(f"{idir}/**", recursive=True):
         relpath = os.path.relpath(path, idir)
         if not path.endswith(".png"):
             continue
@@ -129,7 +129,7 @@ def scale_images(idir, force):
 def unscale_images(idir, force):
     scaled_images = get_scaled_images(idir)
     if force:
-        for path in glob.glob(idir + "/**", recursive=True):
+        for path in glob.glob(f"{idir}/**", recursive=True):
             relpath = os.path.relpath(path, idir)
             if not path.endswith(".png"):
                 continue

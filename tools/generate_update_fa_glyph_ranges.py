@@ -41,13 +41,13 @@ for filename in all_source_files:
 
     tokens = tokens.union(set(re.findall("(ICON_FA_[a-zA-Z0-9_]+)", data)))
 
-print("{} tokens found.".format(len(tokens)))
+print(f"{len(tokens)} tokens found.")
 if len(tokens) == 0:
     sys.exit(0)
 
 u8_encodings = {}
 with open(fa_file, "r") as f:
-    for line in f.readlines():
+    for line in f:
         match = re.match("#define (ICON_FA_[^ ]+) \"([^\"]+)\"", line)
         if match is None:
             continue
@@ -55,13 +55,13 @@ with open(fa_file, "r") as f:
 
 out_pattern = "(static constexpr ImWchar range_fa\[\] = \{)[0-9A-Z_a-z, \n]+(\};)"
 
-codepoints = list()
+codepoints = []
 for token in tokens:
     u8_bytes = u8_encodings[token]
     u8 = str(u8_bytes, "utf-8")
     u16 = u8.encode("utf-16le")
     if len(u16) > 2:
-        raise ValueError("{} too long".format(u8_bytes))
+        raise ValueError(f"{u8_bytes} too long")
 
     codepoint = int.from_bytes(u16, byteorder="little", signed=False)
     codepoints.append(codepoint)
@@ -73,12 +73,9 @@ endc = None
 pairs = [startc]
 for codepoint in codepoints:
     if endc is not None and (endc + 1) != codepoint:
-        pairs.append(endc)
-        pairs.append(codepoint)
+        pairs.extend((endc, codepoint))
         startc = codepoint
-        endc = codepoint
-    else:
-        endc = codepoint
+    endc = codepoint
 pairs.append(endc)
 
 pairs_str = ",".join(map("0x{:x}".format, pairs))
@@ -89,7 +86,7 @@ with open(dst_file, "r") as f:
     if original != updated:
         with open(dst_file, "w") as f:
             f.write(updated)
-            print("Updated {}".format(dst_file))
+            print(f"Updated {dst_file}")
     else:
-        print("Skipping updating {}".format(dst_file))
+        print(f"Skipping updating {dst_file}")
 

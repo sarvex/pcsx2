@@ -64,7 +64,7 @@ def check_regression_test(baselinedir, testdir, name):
         path2 = os.path.join(dir2, imagename)
         if not os.path.isfile(path2):
             print("--- Frame %u for %s is missing in test set" % (framenum, name))
-            write("<h1>{}</h1>".format(name))
+            write(f"<h1>{name}</h1>")
             write("--- Frame %u for %s is missing in test set" % (framenum, name))
             return False
 
@@ -72,7 +72,7 @@ def check_regression_test(baselinedir, testdir, name):
             diff_frames.append(framenum)
 
             if first_fail:
-                write("<h1>{}</h1>".format(name))
+                write(f"<h1>{name}</h1>")
                 write("<table width=\"100%\">")
                 first_fail = False
 
@@ -81,17 +81,21 @@ def check_regression_test(baselinedir, testdir, name):
             write("<tr><td colspan=\"2\">Frame %d</td></tr>" % (framenum))
             write("<tr><td><img src=\"%s\" /></td><td><img src=\"%s\" /></td></tr>" % (imguri1, imguri2))
 
-    if len(diff_frames) > 0:
+    if diff_frames:
         write("</table>")
-        write("<pre>Difference in frames [%s] for %s</pre>" % (",".join(map(str, diff_frames)), name))
-        print("*** Difference in frames [%s] for %s" % (",".join(map(str, diff_frames)), name))
+        write(
+            f'<pre>Difference in frames [{",".join(map(str, diff_frames))}] for {name}</pre>'
+        )
+        print(
+            f'*** Difference in frames [{",".join(map(str, diff_frames))}] for {name}'
+        )
         return False
 
     return True
 
 
 def check_regression_tests(baselinedir, testdir):
-    gamedirs = glob.glob(baselinedir + "/*", recursive=False)
+    gamedirs = glob.glob(f"{baselinedir}/*", recursive=False)
 
     success = 0
     failure = 0
